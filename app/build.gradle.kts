@@ -10,7 +10,18 @@ plugins {
     alias(libs.plugins.convention.composeLibrary)
 }
 
-val keystoreProps = properties(rootProject.file("keystore.properties"))
+val keystoreFile = rootProject.file("keystore.properties")
+val keystoreProps = if (keystoreFile.exists()) {
+    properties(keystoreFile)
+} else {
+    Properties().apply {
+        // Default values for CI builds
+        setProperty("keyAlias", "androiddebugkey")
+        setProperty("keyPassword", "android")
+        setProperty("storeFile", "debug.keystore")
+        setProperty("storePassword", "android")
+    }
+}
 
 android {
     namespace = "ru.blays.hub"
@@ -19,7 +30,13 @@ android {
         create("main") {
             keyAlias = keystoreProps.getProperty("keyAlias")
             keyPassword = keystoreProps.getProperty("keyPassword")
-            storeFile = rootProject.file(keystoreProps.getProperty("storeFile"))
+            val storeFilePath = keystoreProps.getProperty("storeFile")
+            storeFile = if (storeFilePath == "debug.keystore") {
+                // Use default debug keystore for CI builds
+                null
+            } else {
+                rootProject.file(storeFilePath)
+            }
             storePassword = keystoreProps.getProperty("storePassword")
 
             enableV2Signing = true
@@ -33,7 +50,11 @@ android {
         versionCode = libs.versions.projectVersionCode.get().toInt()
         versionName = libs.versions.projectVersionName.get()
 
-        signingConfig = signingConfigs["main"]
+        signingConfig = if (keystoreFile.exists()) {
+            signingConfigs["main"]
+        } else {
+            signingConfigs.getByName("debug")
+        }
     }
 
     buildTypes {
@@ -43,6 +64,11 @@ android {
             ndk {
                 abiFilters += listOf("arm64-v8a", "armeabi-v7a", "x86_64")
             }
+            signingConfig = if (keystoreFile.exists()) {
+                signingConfigs["main"]
+            } else {
+                signingConfigs.getByName("debug")
+            }
         }
         debug {
             //applicationIdSuffix = ".debug"
@@ -50,7 +76,11 @@ android {
                 //noinspection ChromeOsAbiSupport
                 abiFilters += listOf("arm64-v8a", "x86_64")
             }
-            signingConfig = signingConfigs["main"]
+            signingConfig = if (keystoreFile.exists()) {
+                signingConfigs["main"]
+            } else {
+                signingConfigs.getByName("debug")
+            }
         }
     }
     packaging {
