@@ -21,6 +21,13 @@ jobs:
         java-version: '17'
         distribution: 'temurin'
     
+    - name: Setup ccache
+      uses: hendrikmuhs/ccache-action@v1.2
+      with:
+        key: ${{ runner.os }}-ccache-${{ hashFiles('**/*.gradle*', '**/gradle-wrapper.properties') }}
+        restore-keys: |
+          ${{ runner.os }}-ccache-
+    
     - name: Cache Gradle packages
       uses: actions/cache@v4
       with:
@@ -44,15 +51,19 @@ jobs:
         echo "build_date=$(date +'%Y%m%d-%H%M%S')" >> $GITHUB_OUTPUT
     
     - name: Build debug APK
+      env:
+        CCACHE_DIR: ${{ github.workspace }}/.ccache
       run: |
         echo "Building debug APK..."
-        ./gradlew assembleDebug --stacktrace --info
+        ./gradlew assembleDebug --stacktrace --info --build-cache --configuration-cache
         echo "Debug APK build completed"
     
     - name: Build release APK
+      env:
+        CCACHE_DIR: ${{ github.workspace }}/.ccache
       run: |
         echo "Building release APK..."
-        ./gradlew assembleRelease --stacktrace --info
+        ./gradlew assembleRelease --stacktrace --info --build-cache --configuration-cache
         echo "Release APK build completed"
     
     - name: Upload debug APK artifact

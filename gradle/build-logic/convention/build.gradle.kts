@@ -1,5 +1,5 @@
 plugins {
-    `kotlin-dsl` version "6.3.0"
+    `kotlin-dsl`
 }
 
 dependencies {
