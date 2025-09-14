@@ -2,17 +2,13 @@ enableFeaturePreview("TYPESAFE_PROJECT_ACCESSORS")
 
 pluginManagement {
     includeBuild("gradle/build-logic")
-
+    
     repositories {
-        google {
-            content {
-                includeGroupByRegex("com\\.android.*")
-                includeGroupByRegex("com\\.google.*")
-                includeGroupByRegex("androidx.*")
-            }
-        }
+        google()
         mavenCentral()
         gradlePluginPortal()
+        maven(url = "https://www.jitpack.io")
+        maven(url = "https://maven.google.com")
         maven(url = "https://oss.sonatype.org/content/repositories/snapshots")
     }
 }
@@ -23,7 +19,9 @@ dependencyResolutionManagement {
     repositories {
         google()
         mavenCentral()
-        maven(url = "https://jitpack.io")
+        gradlePluginPortal()
+        maven(url = "https://www.jitpack.io")
+        maven(url = "https://maven.google.com")
         maven(url = "https://oss.sonatype.org/content/repositories/snapshots")
     }
 }
