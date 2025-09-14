@@ -5,5 +5,5 @@ object Versions {
     const val TARGET_SDK = 36
     const val MIN_SDK = 26
 
-    const val JAVA_VERSION = "18"
+    const val JAVA_VERSION = "17"
 }
